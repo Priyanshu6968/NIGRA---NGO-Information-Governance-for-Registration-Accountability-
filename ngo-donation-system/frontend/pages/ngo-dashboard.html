@@ -29,22 +29,22 @@
         }
 
         .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
         }
 
         .status-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-            border: 1px solid #f59e0b;
+            background: #fff0f3;
+            color: #ff85a1;
+            border: 1px solid #ffb3c1;
         }
 
         .status-verified {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border: 1px solid #10b981;
+            background: #f0fff4;
+            color: #48bb78;
+            border: 1px solid #9ae6b4;
         }
     </style>
 </head>
@@ -77,13 +77,13 @@
 
         <div id="ngoDashboardContent" style="display: none;">
             <div class="stats-grid">
-                <div class="glass-card">
-                    <h3>Total Received</h3>
-                    <p id="totalReceived" style="font-size: 2rem; font-weight: 800; color: var(--success);">$0</p>
+                <div class="stat-card">
+                    <span style="color: var(--text-muted); font-weight: 600;">Total Received</span>
+                    <p id="totalReceived" class="stat-value" style="color: #48bb78;">$0</p>
                 </div>
-                <div class="glass-card">
-                    <h3>Donation Count</h3>
-                    <p id="donationCount" style="font-size: 2rem; font-weight: 800; color: var(--primary-color);">0</p>
+                <div class="stat-card">
+                    <span style="color: var(--text-muted); font-weight: 600;">Donation Count</span>
+                    <p id="donationCount" class="stat-value" style="color: var(--secondary);">0</p>
                 </div>
             </div>
 

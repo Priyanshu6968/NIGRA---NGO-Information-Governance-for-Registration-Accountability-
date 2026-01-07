@@ -53,13 +53,13 @@
         </header>
 
         <div class="stats-grid">
-            <div class="glass-card">
-                <h3>Total Donated</h3>
-                <p id="totalDonated" style="font-size: 2rem; font-weight: 800; color: var(--primary-color);">$0</p>
+            <div class="stat-card">
+                <span style="color: var(--text-muted); font-weight: 600;">Total Donated</span>
+                <p id="totalDonated" class="stat-value" style="color: var(--primary-hover);">$0</p>
             </div>
-            <div class="glass-card">
-                <h3>NGOs Supported</h3>
-                <p id="ngosSupported" style="font-size: 2rem; font-weight: 800; color: var(--secondary-color);">0</p>
+            <div class="stat-card">
+                <span style="color: var(--text-muted); font-weight: 600;">NGOs Supported</span>
+                <p id="ngosSupported" class="stat-value" style="color: var(--secondary);">0</p>
             </div>
         </div>
 
@@ -92,10 +92,12 @@
 
     <!-- Donation Modal -->
     <div id="donationModal"
-        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center;">
-        <div class="glass-card" style="max-width: 400px; width: 100%;">
-            <h2 id="modalNGOName">Donate to ...</h2>
-            <form id="donationForm" style="margin-top: 1.5rem;">
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center;">
+        <div class="glass-card" style="max-width: 400px; width: 100%; border: 2px solid var(--primary);">
+            <h2 id="modalNGOName" style="color: var(--text-main); margin-bottom: 0.5rem;">Donate to ...</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Your support changes lives.
+            </p>
+            <form id="donationForm">
                 <input type="hidden" id="modalNGOId">
                 <div class="input-group">
                     <label>Amount (USD)</label>
@@ -103,7 +105,7 @@
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <button type="button" class="btn"
-                        style="background: transparent; border: 1px solid var(--glass-border); flex: 1;"
+                        style="background: #fff; border: 1px solid var(--glass-border); flex: 1; color: var(--text-muted);"
                         onclick="document.getElementById('donationModal').style.display='none'">Cancel</button>
                     <button type="submit" class="btn btn-primary" style="flex: 2;">Confirm Donation</button>
                 </div>
