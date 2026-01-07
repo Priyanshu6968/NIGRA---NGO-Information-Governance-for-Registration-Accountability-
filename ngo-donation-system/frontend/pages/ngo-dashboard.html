@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGRA | NGO Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-verified {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">NIGRA</div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <span id="userName"></span>
+            <button class="btn btn-primary" onclick="auth.logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container animate-fade-in">
+        <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1>NGO Dashboard</h1>
+                <p style="color: var(--text-muted);" id="ngoNameHeader">Welcome! Management for your organization.</p>
+            </div>
+            <div id="ngoStatus"></div>
+        </header>
+
+        <div id="noNGOSection" class="glass-card" style="display: none; text-align: center; padding: 3rem;">
+            <h2>Register Your NGO</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">You haven't registered your organization details
+                yet.</p>
+            <button class="btn btn-primary"
+                onclick="document.getElementById('registerNGOModal').style.display='flex'">Register Now</button>
+        </div>
+
+        <div id="ngoDashboardContent" style="display: none;">
+            <div class="stats-grid">
+                <div class="glass-card">
+                    <h3>Total Received</h3>
+                    <p id="totalReceived" style="font-size: 2rem; font-weight: 800; color: var(--success);">$0</p>
+                </div>
+                <div class="glass-card">
+                    <h3>Donation Count</h3>
+                    <p id="donationCount" style="font-size: 2rem; font-weight: 800; color: var(--primary-color);">0</p>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 1rem;">Recent Donations</h2>
+            <div class="glass-card" style="padding: 0;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Donor</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ngoDonations">
+                        <!-- NGO donation items -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register NGO Modal -->
+    <div id="registerNGOModal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center;">
+        <div class="glass-card" style="max-width: 500px; width: 100%;">
+            <h2>Organization Details</h2>
+            <form id="registerNGOForm" style="margin-top: 1.5rem;">
+                <div class="input-group">
+                    <label>NGO Name</label>
+                    <input type="text" id="ngoName" required>
+                </div>
+                <div class="input-group">
+                    <label>Registration Number</label>
+                    <input type="text" id="ngoReg" required>
+                </div>
+                <div class="input-group">
+                    <label>Contact Info</label>
+                    <input type="text" id="ngoContact" required>
+                </div>
+                <div class="input-group">
+                    <label>Bank or UPI Details</label>
+                    <input type="text" id="ngoBank" required placeholder="Account No or UPI ID">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn"
+                        style="background: transparent; border: 1px solid var(--glass-border); flex: 1;"
+                        onclick="document.getElementById('registerNGOModal').style.display='none'">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Submit for Verification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = auth.checkAuth();
+            if (user.role !== 'NGO') window.location.href = 'login.html';
+            document.getElementById('userName').textContent = user.name;
+
+            loadNGOData();
+        });
+
+        async function loadNGOData() {
+            const ngo = await dashboard.getMyNGOProfile();
+            if (ngo) {
+                document.getElementById('noNGOSection').style.display = 'none';
+                document.getElementById('ngoDashboardContent').style.display = 'block';
+                document.getElementById('ngoNameHeader').textContent = ngo.name;
+                document.getElementById('ngoStatus').innerHTML = ngo.isVerified ?
+                    '<span class="status-badge status-verified">Verified</span>' :
+                    '<span class="status-badge status-pending">Pending Verification</span>';
+
+                await dashboard.loadNGODonations();
+            } else {
+                document.getElementById('noNGOSection').style.display = 'block';
+                document.getElementById('ngoDashboardContent').style.display = 'none';
+            }
+        }
+
+        document.getElementById('registerNGOForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ngoData = {
+                name: document.getElementById('ngoName').value,
+                registrationNumber: document.getElementById('ngoReg').value,
+                contactInfo: document.getElementById('ngoContact').value,
+                bankOrUPI: document.getElementById('ngoBank').value
+            };
+
+            const success = await dashboard.registerNGO(ngoData);
+            if (success) {
+                document.getElementById('registerNGOModal').style.display = 'none';
+                loadNGOData();
+            }
+        });
+    </script>
+</body>
+
+</html>

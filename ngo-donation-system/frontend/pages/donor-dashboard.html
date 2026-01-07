@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGRA | Donor Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .ngo-card {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">NIGRA</div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <span id="userName"></span>
+            <button class="btn btn-primary" onclick="auth.logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container animate-fade-in">
+        <header style="margin-bottom: 2rem;">
+            <h1>Donor Dashboard</h1>
+            <p style="color: var(--text-muted);">Welcome back! Your contributions make a difference.</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="glass-card">
+                <h3>Total Donated</h3>
+                <p id="totalDonated" style="font-size: 2rem; font-weight: 800; color: var(--primary-color);">$0</p>
+            </div>
+            <div class="glass-card">
+                <h3>NGOs Supported</h3>
+                <p id="ngosSupported" style="font-size: 2rem; font-weight: 800; color: var(--secondary-color);">0</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h2 style="margin-bottom: 1rem;">Verified NGOs</h2>
+                <div id="ngoList" class="glass-card" style="padding: 1rem;">
+                    <!-- NGO list items will be injected here -->
+                </div>
+            </div>
+            <div>
+                <h2 style="margin-bottom: 1rem;">Donation History</h2>
+                <div class="glass-card" style="padding: 0;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>NGO</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donationHistory">
+                            <!-- Donation history items will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donation Modal -->
+    <div id="donationModal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center;">
+        <div class="glass-card" style="max-width: 400px; width: 100%;">
+            <h2 id="modalNGOName">Donate to ...</h2>
+            <form id="donationForm" style="margin-top: 1.5rem;">
+                <input type="hidden" id="modalNGOId">
+                <div class="input-group">
+                    <label>Amount (USD)</label>
+                    <input type="number" id="donationAmount" required min="1" placeholder="10.00">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn"
+                        style="background: transparent; border: 1px solid var(--glass-border); flex: 1;"
+                        onclick="document.getElementById('donationModal').style.display='none'">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Confirm Donation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = auth.checkAuth();
+            if (user.role !== 'DONOR') window.location.href = 'login.html';
+            document.getElementById('userName').textContent = user.name;
+
+            loadDonorData();
+        });
+
+        async function loadDonorData() {
+            await dashboard.loadVerifiedNGOs();
+            await dashboard.loadMyDonations();
+        }
+
+        document.getElementById('donationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ngoId = document.getElementById('modalNGOId').value;
+            const amount = document.getElementById('donationAmount').value;
+
+            const success = await dashboard.makeDonation(ngoId, amount);
+            if (success) {
+                document.getElementById('donationModal').style.display = 'none';
+                loadDonorData();
+            }
+        });
+    </script>
+</body>
+
+</html>

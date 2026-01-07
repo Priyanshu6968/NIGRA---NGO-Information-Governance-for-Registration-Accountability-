@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGRA | Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th,
+        .history-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-verified {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">NIGRA</div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <span id="userName"></span>
+            <button class="btn btn-primary" onclick="auth.logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container animate-fade-in">
+        <header style="margin-bottom: 2rem;">
+            <h1>Admin Control Panel</h1>
+            <p style="color: var(--text-muted);">Manage NGOs and monitor overall system activity.</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('ngos')">NGO Verification</button>
+            <button class="tab-btn" onclick="switchTab('donations')">All Donations</button>
+        </div>
+
+        <div id="ngosTab" class="glass-card" style="padding: 0;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>NGO Name</th>
+                        <th>Reg Number</th>
+                        <th>Contact</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="adminNGOList">
+                    <!-- NGO list for verification -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="donationsTab" class="glass-card" style="padding: 0; display: none;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Donor</th>
+                        <th>NGO</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="adminDonationList">
+                    <!-- All donations list -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = auth.checkAuth();
+            if (user.role !== 'ADMIN') window.location.href = 'login.html';
+            document.getElementById('userName').textContent = user.name;
+
+            loadAdminData();
+        });
+
+        async function loadAdminData() {
+            await dashboard.loadAllNGOsForAdmin();
+            await dashboard.loadAllDonationsForAdmin();
+        }
+
+        function switchTab(tab) {
+            document.getElementById('ngosTab').style.display = tab === 'ngos' ? 'block' : 'none';
+            document.getElementById('donationsTab').style.display = tab === 'donations' ? 'block' : 'none';
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

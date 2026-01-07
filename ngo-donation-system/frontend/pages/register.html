@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGRA | Register</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="auth-page">
+    <div class="auth-card glass-card animate-fade-in">
+        <h1 class="logo" style="text-align: center; margin-bottom: 2rem;">NIGRA</h1>
+        <h2 style="margin-bottom: 1.5rem; text-align: center;">Create Account</h2>
+
+        <div id="alert" class="alert alert-error"></div>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" required placeholder="John Doe">
+            </div>
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="name@example.com">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required minlength="6" placeholder="Min 6 characters">
+            </div>
+            <div class="input-group">
+                <label for="role">I am a...</label>
+                <select id="role" required>
+                    <option value="DONOR">Donor</option>
+                    <option value="NGO">NGO Organization</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign Up</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.875rem;">
+            Already have an account? <a href="login.html"
+                style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Sign in here</a>
+        </p>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const alertBox = document.getElementById('alert');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+
+            const result = await auth.register(userData);
+            if (result.success) {
+                auth.redirectByRole(userData.role);
+            } else {
+                alertBox.textContent = result.error;
+                alertBox.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
