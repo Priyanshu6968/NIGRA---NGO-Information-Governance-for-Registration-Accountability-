@@ -7,6 +7,8 @@
     <title>NIGRA | Donor Dashboard</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         .stats-grid {
             display: grid;
@@ -34,6 +36,34 @@
             padding: 1rem;
             border-bottom: 1px solid var(--glass-border);
         }
+
+        .payment-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-processing {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -55,7 +85,7 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <span style="color: var(--text-muted); font-weight: 600;">Total Donated</span>
-                <p id="totalDonated" class="stat-value" style="color: var(--primary-hover);">$0</p>
+                <p id="totalDonated" class="stat-value" style="color: var(--primary-hover);">₹0</p>
             </div>
             <div class="stat-card">
                 <span style="color: var(--text-muted); font-weight: 600;">NGOs Supported</span>
@@ -78,6 +108,7 @@
                             <tr>
                                 <th>NGO</th>
                                 <th>Amount</th>
+                                <th>Status</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -100,14 +131,15 @@
             <form id="donationForm">
                 <input type="hidden" id="modalNGOId">
                 <div class="input-group">
-                    <label>Amount (USD)</label>
-                    <input type="number" id="donationAmount" required min="1" placeholder="10.00">
+                    <label>Amount (INR ₹)</label>
+                    <input type="number" id="donationAmount" required min="1" placeholder="100">
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <button type="button" class="btn"
                         style="background: #fff; border: 1px solid var(--glass-border); flex: 1; color: var(--text-muted);"
                         onclick="document.getElementById('donationModal').style.display='none'">Cancel</button>
-                    <button type="submit" class="btn btn-primary" style="flex: 2;">Confirm Donation</button>
+                    <button type="submit" id="donateBtn" class="btn btn-primary" style="flex: 2;">Pay with
+                        Razorpay</button>
                 </div>
             </form>
         </div>
@@ -132,12 +164,84 @@
         document.getElementById('donationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const ngoId = document.getElementById('modalNGOId').value;
-            const amount = document.getElementById('donationAmount').value;
+            const ngoName = document.getElementById('modalNGOName').textContent.replace('Donate to ', '');
+            const amount = parseFloat(document.getElementById('donationAmount').value);
+            const donateBtn = document.getElementById('donateBtn');
 
-            const success = await dashboard.makeDonation(ngoId, amount);
-            if (success) {
-                document.getElementById('donationModal').style.display = 'none';
-                loadDonorData();
+            // Disable button during processing
+            donateBtn.disabled = true;
+            donateBtn.textContent = 'Processing...';
+            donateBtn.classList.add('btn-processing');
+
+            try {
+                // Step 1: Create order on backend
+                const orderData = await dashboard.createPaymentOrder(ngoId, amount);
+
+                if (!orderData.success) {
+                    throw new Error(orderData.error || 'Failed to create order');
+                }
+
+                // Step 2: Get Razorpay key
+                const keyData = await dashboard.getPaymentKey();
+
+                // Step 3: Initialize Razorpay checkout
+                const options = {
+                    key: keyData.key,
+                    amount: orderData.order.amount,
+                    currency: orderData.order.currency,
+                    name: 'NIGRA',
+                    description: `Donation to ${ngoName}`,
+                    order_id: orderData.order.id,
+                    handler: async function (response) {
+                        // Step 4: Verify payment on backend
+                        const verifyData = await dashboard.verifyPayment({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            ngoId: ngoId,
+                            amount: amount
+                        });
+
+                        if (verifyData.success) {
+                            alert('🎉 Donation successful! Thank you for your generosity.');
+                            document.getElementById('donationModal').style.display = 'none';
+                            document.getElementById('donationAmount').value = '';
+                            loadDonorData();
+                        } else {
+                            alert('Payment verification failed. Please contact support.');
+                        }
+                    },
+                    prefill: {
+                        name: auth.checkAuth().name,
+                        email: auth.checkAuth().email || ''
+                    },
+                    theme: {
+                        color: '#ffafcc'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            donateBtn.disabled = false;
+                            donateBtn.textContent = 'Pay with Razorpay';
+                            donateBtn.classList.remove('btn-processing');
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    alert('Payment failed: ' + response.error.description);
+                    donateBtn.disabled = false;
+                    donateBtn.textContent = 'Pay with Razorpay';
+                    donateBtn.classList.remove('btn-processing');
+                });
+                rzp.open();
+
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Error: ' + error.message);
+                donateBtn.disabled = false;
+                donateBtn.textContent = 'Pay with Razorpay';
+                donateBtn.classList.remove('btn-processing');
             }
         });
     </script>

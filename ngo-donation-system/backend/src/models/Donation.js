@@ -15,6 +15,17 @@ const donationSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add a donation amount']
     },
+    razorpayOrderId: {
+        type: String
+    },
+    razorpayPaymentId: {
+        type: String
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'completed', 'failed'],
+        default: 'pending'
+    },
     date: {
         type: Date,
         default: Date.now
@@ -22,3 +33,4 @@ const donationSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Donation', donationSchema);
+

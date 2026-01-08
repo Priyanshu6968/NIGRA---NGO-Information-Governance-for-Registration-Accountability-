@@ -7,6 +7,30 @@ const dashboard = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
     }),
 
+    // --- Razorpay Payment Functions ---
+    getPaymentKey: async () => {
+        const res = await fetch(`${API_URL}/payments/key`, { headers: dashboard.getHeaders() });
+        return await res.json();
+    },
+
+    createPaymentOrder: async (ngoId, amount) => {
+        const res = await fetch(`${API_URL}/payments/create-order`, {
+            method: 'POST',
+            headers: dashboard.getHeaders(),
+            body: JSON.stringify({ ngoId, amount })
+        });
+        return await res.json();
+    },
+
+    verifyPayment: async (paymentData) => {
+        const res = await fetch(`${API_URL}/payments/verify`, {
+            method: 'POST',
+            headers: dashboard.getHeaders(),
+            body: JSON.stringify(paymentData)
+        });
+        return await res.json();
+    },
+
     // --- Donor Actions ---
     loadVerifiedNGOs: async () => {
         const res = await fetch(`${API_URL}/ngos`, { headers: dashboard.getHeaders() });
@@ -38,17 +62,25 @@ const dashboard = {
         let total = 0;
 
         data.data.forEach(d => {
-            total += d.amount;
+            // Only count completed donations in total
+            if (d.paymentStatus === 'completed' || !d.paymentStatus) {
+                total += d.amount;
+            }
+            const statusClass = d.paymentStatus === 'completed' ? 'status-completed' :
+                d.paymentStatus === 'failed' ? 'status-failed' : 'status-pending';
+            const statusText = d.paymentStatus ? d.paymentStatus.charAt(0).toUpperCase() + d.paymentStatus.slice(1) : 'Completed';
+
             history.innerHTML += `
                 <tr>
                     <td>${d.ngoId.name}</td>
-                    <td>$${d.amount}</td>
+                    <td>₹${d.amount}</td>
+                    <td><span class="payment-status ${statusClass}">${statusText}</span></td>
                     <td>${new Date(d.date).toLocaleDateString()}</td>
                 </tr>
             `;
         });
-        document.getElementById('totalDonated').textContent = `$${total}`;
-        document.getElementById('ngosSupported').textContent = new Set(data.data.map(d => d.ngoId._id)).size;
+        document.getElementById('totalDonated').textContent = `₹${total}`;
+        document.getElementById('ngosSupported').textContent = new Set(data.data.filter(d => d.paymentStatus === 'completed' || !d.paymentStatus).map(d => d.ngoId._id)).size;
     },
 
     makeDonation: async (ngoId, amount) => {
@@ -84,17 +116,20 @@ const dashboard = {
         let total = 0;
 
         data.data.forEach(d => {
-            total += d.amount;
+            // Only count completed donations
+            if (d.paymentStatus === 'completed' || !d.paymentStatus) {
+                total += d.amount;
+            }
             history.innerHTML += `
                 <tr>
                     <td>${d.donorId.name}</td>
-                    <td>$${d.amount}</td>
+                    <td>₹${d.amount}</td>
                     <td>${new Date(d.date).toLocaleDateString()}</td>
                 </tr>
             `;
         });
-        document.getElementById('totalReceived').textContent = `$${total}`;
-        document.getElementById('donationCount').textContent = data.count;
+        document.getElementById('totalReceived').textContent = `₹${total}`;
+        document.getElementById('donationCount').textContent = data.data.filter(d => d.paymentStatus === 'completed' || !d.paymentStatus).length;
     },
 
     // --- Admin Actions ---
@@ -138,11 +173,16 @@ const dashboard = {
         const list = document.getElementById('adminDonationList');
         list.innerHTML = '';
         data.data.forEach(d => {
+            const statusClass = d.paymentStatus === 'completed' ? 'status-completed' :
+                d.paymentStatus === 'failed' ? 'status-failed' : 'status-pending';
+            const statusText = d.paymentStatus ? d.paymentStatus.charAt(0).toUpperCase() + d.paymentStatus.slice(1) : 'Completed';
+
             list.innerHTML += `
                 <tr>
                     <td>${d.donorId.name}</td>
                     <td>${d.ngoId.name}</td>
-                    <td>$${d.amount}</td>
+                    <td>₹${d.amount}</td>
+                    <td><span class="payment-status ${statusClass}">${statusText}</span></td>
                     <td>${new Date(d.date).toLocaleDateString()}</td>
                 </tr>
             `;
@@ -156,3 +196,4 @@ window.openDonationModal = (id, name) => {
     document.getElementById('modalNGOName').textContent = `Donate to ${name}`;
     document.getElementById('donationModal').style.display = 'flex';
 };
+
