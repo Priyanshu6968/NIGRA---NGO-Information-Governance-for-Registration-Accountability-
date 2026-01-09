@@ -23,15 +23,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-// Catch-all for SPA routing - serve index.html for unmatched routes
-app.get('*', (req, res) => {
-    const requestedPath = path.join(frontendPath, req.path);
-    res.sendFile(requestedPath, (err) => {
-        if (err) {
-            res.sendFile(path.join(frontendPath, 'index.html'));
-        }
-    });
-});
-
 module.exports = app;
+
 
