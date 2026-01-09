@@ -72,3 +72,29 @@ const sendTokenResponse = (user, statusCode, res) => {
         }
     });
 };
+
+// @desc    Make user admin (temporary - remove in production)
+// @route   GET /api/auth/make-admin/:email
+// @access  Public (REMOVE THIS IN PRODUCTION!)
+exports.makeAdmin = async (req, res, next) => {
+    try {
+        const email = req.params.email;
+        const user = await User.findOneAndUpdate(
+            { email: email },
+            { role: 'ADMIN' },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `User ${email} is now an ADMIN!`,
+            user: { name: user.name, email: user.email, role: user.role }
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
