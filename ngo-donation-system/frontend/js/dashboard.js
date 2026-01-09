@@ -157,7 +157,6 @@ const dashboard = {
     },
 
     verifyNGO: async (id) => {
-        if (!confirm('Are you sure you want to verify this NGO?')) return;
         const res = await fetch(`${API_URL}/ngos/verify/${id}`, {
             method: 'PUT',
             headers: dashboard.getHeaders()
