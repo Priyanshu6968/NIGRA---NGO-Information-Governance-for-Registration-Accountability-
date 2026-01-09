@@ -9,8 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve Static Frontend Files
-app.use(express.static(path.join(__dirname, '../../frontend')));
+// Serve Static Frontend Files - frontend is sibling folder to backend
+const frontendPath = path.join(__dirname, '../../frontend');
+app.use(express.static(frontendPath));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -19,7 +20,18 @@ app.use('/api/donations', require('./routes/donationRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+// Catch-all for SPA routing - serve index.html for unmatched routes
+app.get('*', (req, res) => {
+    const requestedPath = path.join(frontendPath, req.path);
+    res.sendFile(requestedPath, (err) => {
+        if (err) {
+            res.sendFile(path.join(frontendPath, 'index.html'));
+        }
+    });
 });
 
 module.exports = app;
+
