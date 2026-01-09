@@ -1,4 +1,4 @@
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.origin}/api`;
+var API_URL = API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.origin}/api`);
 
 const dashboard = {
     // Helper to get headers
