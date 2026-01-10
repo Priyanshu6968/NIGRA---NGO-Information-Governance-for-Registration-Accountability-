@@ -45,3 +45,15 @@ ngo-donation-system/
    ```bash
    npm start
    ```
+
+## 🌐 Live Access
+
+Access the live application here: **[NIGRA - Live](https://nigra-ngo-information-governance-for.onrender.com/pages/login.html)**
+
+## 🔐 Admin Access
+
+NGO creation and registration requires **approval from the Admin**. The admin panel has a unique email ID and password for secure access.
+
+- Only administrators can approve or reject NGO registration requests
+- NGOs must wait for admin verification before their profiles become active
+- Admin credentials are managed securely and are not publicly shared
