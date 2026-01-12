@@ -3,7 +3,8 @@ const {
     createDonation,
     getMyDonations,
     getNGODonations,
-    getAllDonations
+    getAllDonations,
+    getAdminStats
 } = require('../controllers/donationController');
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router.post('/', protect, authorize('DONOR'), createDonation);
 router.get('/my', protect, authorize('DONOR'), getMyDonations);
 router.get('/ngo', protect, authorize('NGO'), getNGODonations);
 router.get('/all', protect, authorize('ADMIN'), getAllDonations);
+router.get('/stats', protect, authorize('ADMIN'), getAdminStats);
 
 module.exports = router;

@@ -182,10 +182,48 @@ const dashboard = {
                     <td>${d.ngoId.name}</td>
                     <td>₹${d.amount}</td>
                     <td><span class="payment-status ${statusClass}">${statusText}</span></td>
-                    <td>${new Date(d.date).toLocaleDateString()}</td>
+                    <td>${new Date(d.date).toLocaleDateString()} ${new Date(d.date).toLocaleTimeString()}</td>
                 </tr>
             `;
         });
+    },
+
+    // Get admin dashboard stats
+    getAdminStats: async () => {
+        const res = await fetch(`${API_URL}/donations/stats`, { headers: dashboard.getHeaders() });
+        return await res.json();
+    },
+
+    // Get all users (admin)
+    getAllUsers: async (role = '', search = '') => {
+        let url = `${API_URL}/auth/users`;
+        const params = new URLSearchParams();
+        if (role) params.append('role', role);
+        if (search) params.append('search', search);
+        if (params.toString()) url += '?' + params.toString();
+
+        const res = await fetch(url, { headers: dashboard.getHeaders() });
+        return await res.json();
+    },
+
+    // Export users to CSV
+    exportUsers: async () => {
+        const res = await fetch(`${API_URL}/auth/users/export`, { headers: dashboard.getHeaders() });
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'users_export.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    },
+
+    // Get user profile
+    getUserProfile: async () => {
+        const res = await fetch(`${API_URL}/auth/me`, { headers: dashboard.getHeaders() });
+        return await res.json();
     }
 };
 

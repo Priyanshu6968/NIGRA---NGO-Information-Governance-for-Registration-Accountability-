@@ -8,6 +8,34 @@
     <link rel="stylesheet" href="../css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
         .tabs {
             display: flex;
             gap: 2rem;
@@ -54,7 +82,8 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .status-badge {
+        .status-badge,
+        .payment-status {
             padding: 0.4rem 1rem;
             border-radius: 1rem;
             font-size: 0.85rem;
@@ -67,10 +96,50 @@
             border: 1px solid #ffb3c1;
         }
 
-        .status-verified {
+        .status-verified,
+        .status-completed {
             background: #f0fff4;
             color: #48bb78;
             border: 1px solid #9ae6b4;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            color: var(--text-main);
+            font-family: inherit;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -91,14 +160,36 @@
     <div class="container animate-fade-in">
         <header style="margin-bottom: 2rem;">
             <h1>Admin Control Panel</h1>
-            <p style="color: var(--text-muted);">Manage NGOs and monitor overall system activity.</p>
+            <p style="color: var(--text-muted);">Manage NGOs, monitor registrations, and track donations.</p>
         </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Registrations</span>
+                <p id="totalRegistrations" class="stat-value" style="color: var(--primary-hover);">0</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total Donors</span>
+                <p id="totalDonors" class="stat-value" style="color: var(--secondary);">0</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total NGOs</span>
+                <p id="totalNGOs" class="stat-value" style="color: #48bb78;">0</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Donations Received</span>
+                <p id="totalDonationsAmount" class="stat-value" style="color: var(--primary);">₹0</p>
+            </div>
+        </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('ngos')">NGO Verification</button>
             <button class="tab-btn" onclick="switchTab('donations')">All Donations</button>
+            <button class="tab-btn" onclick="switchTab('users')">User Registrations</button>
         </div>
 
+        <!-- NGOs Tab -->
         <div id="ngosTab" class="glass-card" style="padding: 0;">
             <table class="history-table">
                 <thead>
@@ -116,20 +207,55 @@
             </table>
         </div>
 
+        <!-- Donations Tab -->
         <div id="donationsTab" class="glass-card" style="padding: 0; display: none;">
+            <div style="padding: 1rem; border-bottom: 1px solid var(--glass-border);">
+                <strong>Aggregated:</strong>
+                <span id="donationSummary">Loading...</span>
+            </div>
             <table class="history-table">
                 <thead>
                     <tr>
                         <th>Donor</th>
                         <th>NGO</th>
                         <th>Amount</th>
-                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Date & Time</th>
                     </tr>
                 </thead>
                 <tbody id="adminDonationList">
                     <!-- All donations list -->
                 </tbody>
             </table>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTab" style="display: none;">
+            <div class="filter-bar">
+                <select id="roleFilter" onchange="loadUsers()">
+                    <option value="">All Roles</option>
+                    <option value="DONOR">Donor</option>
+                    <option value="NGO">NGO</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+                <input type="text" id="searchFilter" placeholder="Search by name or email..." onkeyup="loadUsers()">
+                <button class="btn-secondary" onclick="dashboard.exportUsers()">📥 Export CSV</button>
+            </div>
+            <div class="glass-card" style="padding: 0;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Registered On</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <!-- User list -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -145,13 +271,50 @@
         });
 
         async function loadAdminData() {
+            await loadStats();
             await dashboard.loadAllNGOsForAdmin();
             await dashboard.loadAllDonationsForAdmin();
+            await loadUsers();
+        }
+
+        async function loadStats() {
+            const statsData = await dashboard.getAdminStats();
+            if (statsData.success) {
+                const { registrations, donations } = statsData.data;
+                document.getElementById('totalRegistrations').textContent = registrations.total;
+                document.getElementById('totalDonors').textContent = registrations.donors;
+                document.getElementById('totalNGOs').textContent = registrations.ngos;
+                document.getElementById('totalDonationsAmount').textContent = `₹${donations.totalAmountReceived}`;
+                document.getElementById('donationSummary').textContent =
+                    `Completed: ₹${donations.totalAmountReceived} (${donations.completed}) | Pending: ₹${donations.totalAmountPending} (${donations.pending}) | Failed: ${donations.failed}`;
+            }
+        }
+
+        async function loadUsers() {
+            const role = document.getElementById('roleFilter').value;
+            const search = document.getElementById('searchFilter').value;
+            const data = await dashboard.getAllUsers(role, search);
+            const list = document.getElementById('usersList');
+            list.innerHTML = '';
+
+            if (data.success) {
+                data.data.forEach(user => {
+                    list.innerHTML += `
+                        <tr>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td><span class="status-badge ${user.role === 'ADMIN' ? 'status-verified' : 'status-pending'}">${user.role}</span></td>
+                            <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+            }
         }
 
         function switchTab(tab) {
             document.getElementById('ngosTab').style.display = tab === 'ngos' ? 'block' : 'none';
             document.getElementById('donationsTab').style.display = tab === 'donations' ? 'block' : 'none';
+            document.getElementById('usersTab').style.display = tab === 'users' ? 'block' : 'none';
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');

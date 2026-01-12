@@ -97,6 +97,32 @@
             </div>
         </div>
 
+        <!-- My Profile Section -->
+        <div style="margin-bottom: 2rem;">
+            <h2 style="margin-bottom: 1rem;">My Profile</h2>
+            <div class="glass-card" id="profileCard">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Name</span>
+                        <p id="profileName" style="font-weight: 700; margin: 0.25rem 0;">Loading...</p>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Email</span>
+                        <p id="profileEmail" style="font-weight: 700; margin: 0.25rem 0;">Loading...</p>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Role</span>
+                        <p id="profileRole" style="font-weight: 700; margin: 0.25rem 0;">Loading...</p>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Member
+                            Since</span>
+                        <p id="profileDate" style="font-weight: 700; margin: 0.25rem 0;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
             <div>
                 <h2 style="margin-bottom: 1rem;">Verified NGOs</h2>
@@ -161,8 +187,20 @@
         });
 
         async function loadDonorData() {
+            await loadProfile();
             await dashboard.loadVerifiedNGOs();
             await dashboard.loadMyDonations();
+        }
+
+        async function loadProfile() {
+            const profileData = await dashboard.getUserProfile();
+            if (profileData.success) {
+                const user = profileData.data;
+                document.getElementById('profileName').textContent = user.name;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profileRole').textContent = user.role;
+                document.getElementById('profileDate').textContent = new Date(user.createdAt).toLocaleDateString();
+            }
         }
 
         document.getElementById('donationForm').addEventListener('submit', async (e) => {

@@ -83,3 +83,50 @@ exports.getAllDonations = async (req, res, next) => {
         res.status(400).json({ success: false, error: err.message });
     }
 };
+
+// @desc    Get admin dashboard stats
+// @route   GET /api/donations/stats
+// @access  Private (Admin Role)
+exports.getAdminStats = async (req, res, next) => {
+    try {
+        const User = require('../models/User');
+
+        // Get total registrations (all users)
+        const totalUsers = await User.countDocuments();
+        const donorCount = await User.countDocuments({ role: 'DONOR' });
+        const ngoCount = await User.countDocuments({ role: 'NGO' });
+
+        // Get donation stats
+        const donations = await Donation.find();
+        const totalDonations = donations.length;
+
+        // Calculate amounts by status
+        const completedDonations = donations.filter(d => d.paymentStatus === 'completed');
+        const pendingDonations = donations.filter(d => d.paymentStatus === 'pending');
+        const failedDonations = donations.filter(d => d.paymentStatus === 'failed');
+
+        const totalAmountReceived = completedDonations.reduce((sum, d) => sum + d.amount, 0);
+        const totalAmountPending = pendingDonations.reduce((sum, d) => sum + d.amount, 0);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                registrations: {
+                    total: totalUsers,
+                    donors: donorCount,
+                    ngos: ngoCount
+                },
+                donations: {
+                    total: totalDonations,
+                    completed: completedDonations.length,
+                    pending: pendingDonations.length,
+                    failed: failedDonations.length,
+                    totalAmountReceived,
+                    totalAmountPending
+                }
+            }
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};

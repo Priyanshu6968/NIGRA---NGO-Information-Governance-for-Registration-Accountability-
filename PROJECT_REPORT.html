@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGRA Project Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ffafcc;
+            --secondary: #a2d2ff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 3px solid var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        h2 {
+            color: var(--text-main);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        h3 {
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .architecture-diagram {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .flow-box {
+            background: var(--card-bg);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, rgba(255, 175, 204, 0.2), rgba(162, 210, 255, 0.2));
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .tech-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--secondary);
+            color: var(--text-main);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid #eee;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 1rem;
+            }
+
+            .card {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>NIGRA</h1>
+        <p class="subtitle">NGO Information Governance for Registration & Accountability</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">Project Report | January 2026</p>
+    </div>
+
+    <h2>1. Project Overview</h2>
+    <div class="card">
+        <p><strong>Objective:</strong> Design and develop a secure backend-driven system for NGO registration and
+            donation management that separates user registration from donation flow, ensuring data integrity,
+            transparency, and ethical payment handling.</p>
+
+        <h3>Key Features</h3>
+        <ul>
+            <li>Role-based authentication (Donor, NGO, Admin)</li>
+            <li>Razorpay payment gateway integration (Sandbox)</li>
+            <li>Donation tracking with status management (Success/Pending/Failed)</li>
+            <li>Admin dashboard with statistics, filtering, and CSV export</li>
+            <li>Registration data preserved regardless of payment outcome</li>
+        </ul>
+    </div>
+
+    <h2>2. System Architecture</h2>
+    <div class="card">
+        <div class="architecture-diagram">
+            ┌────────────────────────────────────────────────────────────────┐
+            │ FRONTEND (Static HTML/JS) │
+            │ Login │ Donor Dashboard │ NGO Dashboard │ Admin │
+            └──────────────────────────┬─────────────────────────────────────┘
+            │ REST API (HTTP/JSON)
+            ▼
+            ┌────────────────────────────────────────────────────────────────┐
+            │ BACKEND (Node.js + Express) │
+            │ ┌──────────────────────────────────────────────────────────┐ │
+            │ │ Middleware: JWT Auth → Role Authorization → Error Handle │ │
+            │ └──────────────────────────────────────────────────────────┘ │
+            │ ┌──────────────────────────────────────────────────────────┐ │
+            │ │ Controllers: Auth │ NGO │ Donation │ Payment │ │
+            │ └──────────────────────────────────────────────────────────┘ │
+            └──────────────────────────┬─────────────────────────────────────┘
+            │
+            ┌──────────────────┴──────────────────┐
+            ▼ ▼
+            ┌───────────────────┐ ┌───────────────────┐
+            │ MongoDB Atlas │ │ Razorpay Gateway │
+            │ (Users, NGOs, │ │ (Sandbox Mode) │
+            │ Donations) │ └───────────────────┘
+            └───────────────────┘
+        </div>
+
+        <h3>Technology Stack</h3>
+        <p>
+            <span class="tech-badge">Node.js</span>
+            <span class="tech-badge">Express.js</span>
+            <span class="tech-badge">MongoDB</span>
+            <span class="tech-badge">Mongoose</span>
+            <span class="tech-badge">JWT</span>
+            <span class="tech-badge">Bcrypt</span>
+            <span class="tech-badge">Razorpay</span>
+            <span class="tech-badge">Vanilla JS</span>
+        </p>
+    </div>
+
+    <h2>3. Database Schema</h2>
+    <div class="card">
+        <h3>User Collection</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>String</td>
+                <td>User's full name</td>
+            </tr>
+            <tr>
+                <td>email</td>
+                <td>String (unique)</td>
+                <td>Login identifier</td>
+            </tr>
+            <tr>
+                <td>role</td>
+                <td>Enum</td>
+                <td>DONOR | NGO | ADMIN</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>String</td>
+                <td>Bcrypt hashed</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Registration timestamp</td>
+            </tr>
+        </table>
+
+        <h3>NGO Collection</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>String</td>
+                <td>NGO name (unique)</td>
+            </tr>
+            <tr>
+                <td>registrationNumber</td>
+                <td>String</td>
+                <td>Official reg number</td>
+            </tr>
+            <tr>
+                <td>isVerified</td>
+                <td>Boolean</td>
+                <td>Admin approval status</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>ObjectId → User</td>
+                <td>Owner reference</td>
+            </tr>
+        </table>
+
+        <h3>Donation Collection</h3>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>donorId</td>
+                <td>ObjectId → User</td>
+                <td>Donor reference</td>
+            </tr>
+            <tr>
+                <td>ngoId</td>
+                <td>ObjectId → NGO</td>
+                <td>Recipient NGO</td>
+            </tr>
+            <tr>
+                <td>amount</td>
+                <td>Number</td>
+                <td>Donation amount (INR)</td>
+            </tr>
+            <tr>
+                <td>paymentStatus</td>
+                <td>Enum</td>
+                <td>pending | completed | failed</td>
+            </tr>
+            <tr>
+                <td>razorpayOrderId</td>
+                <td>String</td>
+                <td>Payment tracking</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>4. Flow Diagrams</h2>
+    <div class="card">
+        <h3>User Registration Flow</h3>
+        <div class="flow-diagram">
+            <div class="flow-box">User Fills Form</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">POST /auth/register</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Hash Password</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Save to DB</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Return JWT</div>
+        </div>
+
+        <h3>Donation Flow</h3>
+        <div class="flow-diagram">
+            <div class="flow-box">Select NGO</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Create Order</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Razorpay Checkout</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Verify Signature</div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-box">Update Status</div>
+        </div>
+    </div>
+
+    <h2>5. Key Design Decisions</h2>
+    <div class="card">
+        <div class="highlight">
+            <h3>Data Integrity First</h3>
+            <p>Registration data is stored independently of payment completion. Users are saved to the database
+                immediately upon registration, ensuring no data loss if payments fail.</p>
+        </div>
+
+        <h3>Payment Verification</h3>
+        <ul>
+            <li>Razorpay signature verification using HMAC SHA256</li>
+            <li>No fake success logic - status based solely on gateway response</li>
+            <li>Failed payments recorded with full tracking details</li>
+        </ul>
+
+        <h3>Role-Based Access Control</h3>
+        <ul>
+            <li>JWT tokens contain user ID, decoded on each request</li>
+            <li>Middleware checks role before reaching controllers</li>
+            <li>Admin endpoints protected with ADMIN role check</li>
+        </ul>
+
+        <h3>Assumptions</h3>
+        <ul>
+            <li>Single NGO per user account</li>
+            <li>INR currency for all transactions</li>
+            <li>Minimum donation amount: ₹1</li>
+            <li>Admin accounts created via seed script</li>
+        </ul>
+    </div>
+
+    <h2>6. Deliverables Summary</h2>
+    <div class="card">
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td>GitHub Repository</td>
+                <td>✅ Complete with documentation</td>
+            </tr>
+            <tr>
+                <td>Live Deployment</td>
+                <td>✅ Hosted on Render</td>
+            </tr>
+            <tr>
+                <td>Payment Gateway</td>
+                <td>✅ Razorpay Sandbox integrated</td>
+            </tr>
+            <tr>
+                <td>Admin Dashboard</td>
+                <td>✅ Stats, filters, export</td>
+            </tr>
+            <tr>
+                <td>User Features</td>
+                <td>✅ Profile, donations, history</td>
+            </tr>
+            <tr>
+                <td>Project Report</td>
+                <td>✅ This document</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>NIGRA Project Report | Created by Priyanshu</p>
+        <p>Live: <a
+                href="https://nigra-ngo-information-governance-for.onrender.com/pages/login.html">https://nigra-ngo-information-governance-for.onrender.com</a>
+        </p>
+    </div>
+
+</body>
+
+</html>

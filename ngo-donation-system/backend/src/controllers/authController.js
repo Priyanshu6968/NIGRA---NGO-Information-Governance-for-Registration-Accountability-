@@ -73,6 +73,78 @@ const sendTokenResponse = (user, statusCode, res) => {
     });
 };
 
+// @desc    Get current user profile
+// @route   GET /api/auth/me
+// @access  Private
+exports.getMe = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+
+// @desc    Get all users (Admin only)
+// @route   GET /api/auth/users
+// @access  Private (Admin Role)
+exports.getAllUsers = async (req, res, next) => {
+    try {
+        const { role, search } = req.query;
+        let query = {};
+
+        // Filter by role if provided
+        if (role && ['DONOR', 'NGO', 'ADMIN'].includes(role)) {
+            query.role = role;
+        }
+
+        // Search by name or email if provided
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const users = await User.find(query).select('-password').sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: users.length,
+            data: users
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+
+// @desc    Export users data as CSV (Admin only)
+// @route   GET /api/auth/users/export
+// @access  Private (Admin Role)
+exports.exportUsers = async (req, res, next) => {
+    try {
+        const users = await User.find().select('-password').sort({ createdAt: -1 });
+
+        // Create CSV content
+        const csvHeader = 'Name,Email,Role,Registration Date\n';
+        const csvRows = users.map(user =>
+            `"${user.name}","${user.email}","${user.role}","${new Date(user.createdAt).toISOString()}"`
+        ).join('\n');
+
+        const csvContent = csvHeader + csvRows;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=users_export.csv');
+        res.status(200).send(csvContent);
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+
 // @desc    Make user admin (temporary - remove in production)
 // @route   GET /api/auth/make-admin/:email
 // @access  Public (REMOVE THIS IN PRODUCTION!)
