@@ -265,4 +265,4 @@ MIT License - See [LICENSE](LICENSE) file
 
 ## 💝 Author
 
-Made with ❤️ by [Priyanshu](https://instagram.com/pryanshunigam)
+Made with ❤️ by [Priyanshu](https://instagram.com/pryanshunigam) and [Tanisha](www.linkedin.com/in/tanisha045) .
